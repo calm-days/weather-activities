@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Xcode user state & build artifacts
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# SwiftPM
+.build/
+.swiftpm/
+
+# Note: WeatherActivities.xcodeproj IS committed for reviewer convenience (opens with no tooling).
+# project.yml (XcodeGen) is the source of truth — regenerate with `xcodegen generate`.
