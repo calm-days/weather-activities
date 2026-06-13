@@ -49,6 +49,12 @@ final class ActivityRankingViewModel {
         state = .loading
         do {
             let forecast = try await repository.forecast(for: city)
+            // An empty forecast would score every activity 0 and crown a misleading
+            // "Top pick"; treat it as empty rather than loaded.
+            guard !forecast.days.isEmpty else {
+                state = .empty
+                return
+            }
             let ranking = scorer.rank(forecast: forecast)
             state = .loaded(ranking)
         } catch let error as AppError {

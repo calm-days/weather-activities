@@ -6,7 +6,7 @@ import Foundation
 /// the free-text city query) are correctly percent-encoded.
 enum Endpoints {
 
-    /// The 11 daily variables requested from the Forecast API, in the exact order
+    /// The 10 daily variables requested from the Forecast API, in the exact order
     /// the columnar response arrays are zipped by `ForecastMapper`.
     static let dailyVariables: [String] = [
         "weather_code",
@@ -18,8 +18,7 @@ enum Endpoints {
         "precipitation_probability_max",
         "wind_speed_10m_max",
         "wind_gusts_10m_max",
-        "sunshine_duration",
-        "uv_index_max"
+        "sunshine_duration"
     ]
 
     /// Geocoding search: `https://geocoding-api.open-meteo.com/v1/search`.

@@ -2,11 +2,22 @@ import SwiftUI
 
 /// A single activity row in the ranking: icon, title, percentage badge, a 0–100
 /// score bar, and the scorer's rationale. The top-ranked activity gets a subtle
-/// tinted background and a "Top pick" marker for visual emphasis.
+/// tinted background and a "Top pick" marker for visual emphasis. When a best-day
+/// label is provided and the score is meaningful, a subtle "Best: Sat" caption
+/// surfaces the activity's strongest day.
 struct ActivityCard: View {
     let score: ActivityScore
     /// `true` for the #1 activity — drives the highlight treatment.
     let isTop: Bool
+    /// Abbreviated weekday of this activity's best day (e.g. "Sat"), or nil when
+    /// unavailable. Only shown when the score is meaningful (not poor).
+    let bestDayLabel: String?
+
+    init(score: ActivityScore, isTop: Bool, bestDayLabel: String? = nil) {
+        self.score = score
+        self.isTop = isTop
+        self.bestDayLabel = bestDayLabel
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -31,14 +42,21 @@ struct ActivityCard: View {
                 }
 
                 Spacer()
-                ScoreBadge(percentage: score.percentage)
+                ScoreBadge(score: score.score)
             }
 
-            ScoreBar(percentage: score.percentage)
+            ScoreBar(score: score.score)
 
             Text(score.rationale)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+
+            if let bestDay = meaningfulBestDayLabel {
+                Label("Best: \(bestDay)", systemImage: "calendar")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+            }
         }
         .padding()
         .background(background, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -50,6 +68,13 @@ struct ActivityCard: View {
         .accessibilityLabel(accessibilityLabel)
     }
 
+    /// The best-day label, but only when the score is meaningful (tier ≥ fair).
+    /// Suppresses a "best day" suggestion for activities that are poor throughout.
+    private var meaningfulBestDayLabel: String? {
+        guard let bestDayLabel, ScoreTier(score: score.score) != .poor else { return nil }
+        return bestDayLabel
+    }
+
     private var background: AnyShapeStyle {
         isTop
             ? AnyShapeStyle(Color.accentColor.opacity(0.12))
@@ -58,13 +83,17 @@ struct ActivityCard: View {
 
     private var accessibilityLabel: String {
         let prefix = isTop ? "Top pick. " : ""
-        return "\(prefix)\(score.activity.title), \(score.percentage) percent. \(score.rationale)"
+        let bestDay = meaningfulBestDayLabel.map { " Best day \($0)." } ?? ""
+        return "\(prefix)\(score.activity.title), \(score.percentage) percent. \(score.rationale)\(bestDay)"
     }
 }
 
 /// A thin, rounded 0–100 progress bar tinted by the same tier as `ScoreBadge`.
 private struct ScoreBar: View {
-    let percentage: Int
+    /// Raw suitability score in `0...1`.
+    let score: Double
+
+    private var percentage: Int { Int((score * 100).rounded()) }
 
     var body: some View {
         GeometryReader { proxy in
@@ -72,7 +101,7 @@ private struct ScoreBar: View {
                 Capsule()
                     .fill(Color(.tertiarySystemFill))
                 Capsule()
-                    .fill(ScoreBadge.Tier(percentage: percentage).color)
+                    .fill(ScoreBadge.color(for: ScoreTier(score: score)))
                     .frame(width: proxy.size.width * fraction)
             }
         }

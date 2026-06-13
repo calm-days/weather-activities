@@ -17,5 +17,4 @@ struct DailyWeather: Equatable, Sendable, Codable {
     let windSpeedMax: Double             // wind_speed_10m_max (km/h)
     let windGustsMax: Double             // wind_gusts_10m_max (km/h)
     let sunshineDuration: Double         // sunshine_duration (seconds)
-    let uvIndexMax: Double               // uv_index_max (index)
 }

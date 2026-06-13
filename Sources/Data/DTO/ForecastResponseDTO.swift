@@ -21,7 +21,6 @@ struct ForecastResponseDTO: Decodable, Sendable {
         let windSpeedMax: [Double?]
         let windGustsMax: [Double?]
         let sunshineDuration: [Double?]
-        let uvIndexMax: [Double?]
 
         private enum CodingKeys: String, CodingKey {
             case time
@@ -35,7 +34,6 @@ struct ForecastResponseDTO: Decodable, Sendable {
             case windSpeedMax = "wind_speed_10m_max"
             case windGustsMax = "wind_gusts_10m_max"
             case sunshineDuration = "sunshine_duration"
-            case uvIndexMax = "uv_index_max"
         }
     }
 }

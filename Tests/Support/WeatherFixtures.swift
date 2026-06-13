@@ -19,8 +19,7 @@ extension DailyWeather {
         pop: Int = 0,
         wind: Double = 10,
         gust: Double = 15,
-        sun: Double = 6 * 3600,
-        uv: Double = 3
+        sun: Double = 6 * 3600
     ) -> DailyWeather {
         DailyWeather(
             date: date,
@@ -33,8 +32,7 @@ extension DailyWeather {
             precipitationProbabilityMax: pop,
             windSpeedMax: wind,
             windGustsMax: gust,
-            sunshineDuration: sun,
-            uvIndexMax: uv
+            sunshineDuration: sun
         )
     }
 }

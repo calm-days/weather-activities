@@ -65,9 +65,13 @@ final class LiveForecastRepositoryTests: XCTestCase {
         let result = try await sut.forecast(for: city)
 
         XCTAssertEqual(result, cached, "Offline with a cache hit must return the cached forecast")
-        // It did NOT write through on the offline path.
+        // The network WAS attempted before falling back.
+        XCTAssertEqual(stub.requestedURLs.count, 1, "Must attempt the network before the cache fallback")
+        // It did NOT write through on the offline path, but it DID read the cache.
         let saveCount = await cache.saveCount
+        let readCount = await cache.readCount
         XCTAssertEqual(saveCount, 0)
+        XCTAssertEqual(readCount, 1)
     }
 
     func test_forecast_timeout_withCachedValue_returnsCache() async throws {
@@ -78,6 +82,8 @@ final class LiveForecastRepositoryTests: XCTestCase {
 
         let result = try await sut.forecast(for: city)
         XCTAssertEqual(result, cached)
+        // The network WAS attempted before the cache fallback.
+        XCTAssertEqual(stub.requestedURLs.count, 1, "Must attempt the network before the cache fallback")
     }
 
     func test_forecast_offline_withEmptyCache_rethrowsOffline() async {
@@ -120,6 +126,9 @@ final class LiveForecastRepositoryTests: XCTestCase {
             // Non-connectivity errors must NOT fall back to cache.
             XCTAssertEqual(error as? AppError, .server(statusCode: 500))
         }
+        // The cache must NOT be consulted on a non-connectivity error.
+        let readCount = await cache.readCount
+        XCTAssertEqual(readCount, 0, "Server errors must not trigger a cache read")
     }
 
     func test_forecast_decodingError_propagates() async {

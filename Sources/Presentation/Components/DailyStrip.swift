@@ -8,35 +8,26 @@ struct DailyStrip: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("7-Day Forecast")
+            // The domain doesn't guarantee 7 days, so reflect the actual count.
+            Text("\(days.count)-Day Forecast")
                 .font(.headline)
                 .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(Array(days.enumerated()), id: \.offset) { _, day in
-                        DayCell(day: day, calendar: calendar)
+                        DayCell(day: day, timeZoneIdentifier: timeZoneIdentifier)
                     }
                 }
                 .padding(.horizontal)
             }
         }
     }
-
-    /// Render weekdays in the city's own time zone when known, so a forecast for a
-    /// far-away city shows that city's local days rather than the device's.
-    private var calendar: Calendar {
-        var calendar = Calendar(identifier: .gregorian)
-        if let timeZoneIdentifier, let zone = TimeZone(identifier: timeZoneIdentifier) {
-            calendar.timeZone = zone
-        }
-        return calendar
-    }
 }
 
 private struct DayCell: View {
     let day: DailyWeather
-    let calendar: Calendar
+    let timeZoneIdentifier: String?
 
     var body: some View {
         VStack(spacing: 6) {
@@ -67,22 +58,10 @@ private struct DayCell: View {
     private func temp(_ value: Double) -> Int { Int(value.rounded()) }
 
     private var weekday: String {
-        DateFormatter.shared(format: "EEE", calendar: calendar).string(from: day.date)
+        WeekdayFormatter.short(day.date, timeZoneIdentifier: timeZoneIdentifier)
     }
 
     private var fullWeekday: String {
-        DateFormatter.shared(format: "EEEE", calendar: calendar).string(from: day.date)
-    }
-}
-
-private extension DateFormatter {
-    /// Builds a formatter whose calendar/time zone match the supplied calendar.
-    static func shared(format: String, calendar: Calendar) -> DateFormatter {
-        let formatter = DateFormatter()
-        formatter.calendar = calendar
-        formatter.timeZone = calendar.timeZone
-        formatter.locale = Locale.current
-        formatter.dateFormat = format
-        return formatter
+        WeekdayFormatter.full(day.date, timeZoneIdentifier: timeZoneIdentifier)
     }
 }

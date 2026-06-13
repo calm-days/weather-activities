@@ -69,24 +69,25 @@ final class EndpointsTests: XCTestCase {
         XCTAssertEqual(items["forecast_days"], "7")
     }
 
-    func test_forecast_dailyContainsAllElevenVariablesInOrder() {
+    func test_forecast_dailyContainsAllTenVariablesInOrder() {
         let items = queryItems(Endpoints.forecast(latitude: 52.52, longitude: 13.41))
         let daily = items["daily"]
         XCTAssertEqual(
             daily,
-            "weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,precipitation_sum,snowfall_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,sunshine_duration,uv_index_max"
+            "weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,precipitation_sum,snowfall_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,sunshine_duration"
         )
 
-        // Sanity: all 11 expected variables are present.
+        // Sanity: all 10 expected variables are present, and uv_index_max is gone.
         let expected = [
             "weather_code", "temperature_2m_max", "temperature_2m_min",
             "apparent_temperature_max", "precipitation_sum", "snowfall_sum",
             "precipitation_probability_max", "wind_speed_10m_max",
-            "wind_gusts_10m_max", "sunshine_duration", "uv_index_max"
+            "wind_gusts_10m_max", "sunshine_duration"
         ]
         let parts = daily?.split(separator: ",").map(String.init) ?? []
         XCTAssertEqual(parts, expected)
-        XCTAssertEqual(parts.count, 11)
+        XCTAssertEqual(parts.count, 10)
+        XCTAssertFalse(parts.contains("uv_index_max"))
     }
 
     func test_forecast_negativeCoordinatesFormatted() {

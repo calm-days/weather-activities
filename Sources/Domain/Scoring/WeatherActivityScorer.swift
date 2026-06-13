@@ -133,13 +133,13 @@ struct WeatherActivityScorer: ActivityScoring {
 
         let strongDays = dailyScores.lazy.filter { $0 > 0.6 }.count
         let noun = Self.noun(activity)
+        // Derive the copy tier from the shared `ScoreTier` so the rationale always
+        // agrees with the badge colour/label (same 0.66/0.40 partition of the raw score).
         let tier: String
-        if score >= 0.66 {
-            tier = "Great conditions for \(noun)"
-        } else if score >= 0.4 {
-            tier = "Fair conditions for \(noun)"
-        } else {
-            tier = "Poor conditions for \(noun)"
+        switch ScoreTier(score: score) {
+        case .great: tier = "Great conditions for \(noun)"
+        case .fair:  tier = "Fair conditions for \(noun)"
+        case .poor:  tier = "Poor conditions for \(noun)"
         }
 
         switch strongDays {

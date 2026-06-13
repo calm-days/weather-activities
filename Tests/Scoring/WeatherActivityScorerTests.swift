@@ -104,6 +104,31 @@ final class WeatherActivityScorerTests: XCTestCase {
         XCTAssertLessThan(indoorGreat, indoorFoul)
     }
 
+    // MARK: - Fog penalty (D3)
+
+    func test_fog_penalizesOutdoorAndLiftsIndoor_versusClear() {
+        // Same pleasant day except the weather code: clear (0) vs fog (45). Fog is a
+        // "severe" code, so outdoor takes the 0.6 multiplier and indoor (which
+        // inversely tracks outdoor, plus an unpleasant bonus) rises correspondingly.
+        let clear = DailyWeather.make(weatherCode: 0, appMax: 20, precip: 0, pop: 5, wind: 8, sun: 7 * 3600)
+        let foggy = DailyWeather.make(weatherCode: 45, appMax: 20, precip: 0, pop: 5, wind: 8, sun: 7 * 3600)
+
+        let clearRank = rankSingleDay(clear)
+        let foggyRank = rankSingleDay(foggy)
+
+        let outdoorClear = score(clearRank, .outdoorSightseeing).score
+        let outdoorFoggy = score(foggyRank, .outdoorSightseeing).score
+        let indoorClear = score(clearRank, .indoorSightseeing).score
+        let indoorFoggy = score(foggyRank, .indoorSightseeing).score
+
+        // Outdoor is meaningfully penalized by fog (at least a 0.2 absolute drop).
+        XCTAssertLessThan(outdoorFoggy, outdoorClear)
+        XCTAssertGreaterThan(outdoorClear - outdoorFoggy, 0.2,
+                             "Fog should meaningfully penalize outdoor sightseeing")
+        // Indoor is correspondingly higher under fog.
+        XCTAssertGreaterThan(indoorFoggy, indoorClear)
+    }
+
     // MARK: - Bounds
 
     func test_allScoresWithinUnitInterval_acrossSpreadOfDays() {
@@ -119,8 +144,7 @@ final class WeatherActivityScorerTests: XCTestCase {
                 pop: Int.random(in: 0...100, using: &generator),
                 wind: Double.random(in: 0...90, using: &generator),
                 gust: Double.random(in: 0...130, using: &generator),
-                sun: Double.random(in: 0...(12 * 3600), using: &generator),
-                uv: Double.random(in: 0...11, using: &generator)
+                sun: Double.random(in: 0...(12 * 3600), using: &generator)
             )
         }
 

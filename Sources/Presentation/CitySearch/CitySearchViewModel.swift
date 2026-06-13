@@ -69,10 +69,11 @@ final class CitySearchViewModel {
                 self.state = cities.isEmpty ? .empty : .loaded(cities)
             } catch is CancellationError {
                 // Superseded by a newer keystroke; the newer task owns the state.
-            } catch let error as AppError {
-                self?.state = .failed(error)
             } catch {
-                self?.state = .failed(.unknown)
+                // A cancelled task (e.g. `URLError.cancelled` surfaced as a generic
+                // error) must never overwrite a newer task's state.
+                guard !Task.isCancelled else { return }
+                self?.state = .failed((error as? AppError) ?? .unknown)
             }
         }
     }

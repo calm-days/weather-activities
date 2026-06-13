@@ -49,6 +49,16 @@ final class ActivityRankingViewModelTests: XCTestCase {
         XCTAssertEqual(stub.callCount, 1)
     }
 
+    func test_load_emptyForecast_producesEmptyState() async {
+        // An empty forecast must NOT crown a misleading "Top pick"; it's .empty.
+        let emptyForecast = Fixtures.forecast(days: [], city: city)
+        let (sut, _) = makeSUT(outcome: .success(emptyForecast))
+
+        await sut.load()
+
+        XCTAssertEqual(sut.state, .empty)
+    }
+
     // MARK: - Load failure
 
     func test_load_repositoryThrowsOffline_fails() async {

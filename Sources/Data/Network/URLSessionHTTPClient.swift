@@ -19,6 +19,12 @@ struct URLSessionHTTPClient: HTTPClient {
         do {
             (data, response) = try await session.data(from: url)
         } catch let urlError as URLError {
+            // A cancelled request is a superseded task, not a real failure — surface
+            // it as `CancellationError` so callers swallow it instead of mapping to
+            // an `AppError` that would flash a spurious error state.
+            if urlError.code == .cancelled {
+                throw CancellationError()
+            }
             throw Self.map(urlError)
         } catch {
             throw AppError.unknown

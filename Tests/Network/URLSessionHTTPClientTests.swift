@@ -55,6 +55,13 @@ final class URLSessionHTTPClientTests: XCTestCase {
         HTTPURLResponse(url: url, statusCode: status, httpVersion: nil, headerFields: nil)!
     }
 
+    override func setUp() {
+        super.setUp()
+        // Reset before each test too, not only after, so a prior test's stub can
+        // never leak into this one.
+        URLProtocolStub.set(nil)
+    }
+
     override func tearDown() {
         URLProtocolStub.set(nil)
         super.tearDown()
@@ -113,6 +120,23 @@ final class URLSessionHTTPClientTests: XCTestCase {
 
         await assertThrowsAppError(.timeout) {
             let _: Payload = try await self.makeClient().get(self.url)
+        }
+    }
+
+    // MARK: - Cancellation (A1)
+
+    func test_get_cancelled_throwsCancellationErrorNotAppError() async {
+        // A superseded request surfaces `URLError.cancelled`; the client must rethrow
+        // a `CancellationError` so callers swallow it instead of flashing an error.
+        URLProtocolStub.set(.init(data: nil, response: nil, error: URLError(.cancelled)))
+
+        do {
+            let _: Payload = try await makeClient().get(url)
+            XCTFail("Expected to throw CancellationError but succeeded")
+        } catch {
+            XCTAssertTrue(error is CancellationError,
+                          "Expected CancellationError, got \(error)")
+            XCTAssertFalse(error is AppError, "Cancellation must not map to an AppError")
         }
     }
 

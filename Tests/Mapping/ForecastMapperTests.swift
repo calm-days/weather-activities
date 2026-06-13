@@ -42,7 +42,6 @@ final class ForecastMapperTests: XCTestCase {
         XCTAssertEqual(day0.windSpeedMax, 15.2, accuracy: 0.0001)
         XCTAssertEqual(day0.windGustsMax, 35.6, accuracy: 0.0001)
         XCTAssertEqual(day0.sunshineDuration, 28800.0, accuracy: 0.0001)
-        XCTAssertEqual(day0.uvIndexMax, 6.5, accuracy: 0.0001)
 
         // A rainy mid-week day (index 3).
         let day3 = forecast.days[3]
@@ -55,7 +54,48 @@ final class ForecastMapperTests: XCTestCase {
         let day6 = forecast.days[6]
         XCTAssertEqual(day6.date, Self.dateParser.date(from: "2026-06-19"))
         XCTAssertEqual(day6.weatherCode, 45)
-        XCTAssertEqual(day6.uvIndexMax, 5.8, accuracy: 0.0001)
+    }
+
+    // MARK: - Timezone-aware date parsing (A2)
+
+    func test_map_westernHemisphereCity_preservesCalendarDayInCityTimeZone() throws {
+        // A Los Angeles city: parsing must anchor each date to the city's local
+        // midnight so the strip (which formats in the city's tz) shows the SAME
+        // calendar day, not the previous one.
+        let la = City(
+            id: 5368361, name: "Los Angeles",
+            latitude: 34.05, longitude: -118.24,
+            country: "United States", countryCode: "US",
+            admin1: "California", timezone: "America/Los_Angeles", population: 3_900_000
+        )
+        let payload = """
+        {
+          "daily": {
+            "time": ["2026-06-13","2026-06-14"],
+            "weather_code": [0,1],
+            "temperature_2m_max": [25.0,26.0],
+            "temperature_2m_min": [15.0,16.0],
+            "apparent_temperature_max": [24.0,25.0],
+            "precipitation_sum": [0.0,0.0],
+            "snowfall_sum": [0.0,0.0],
+            "precipitation_probability_max": [5,10],
+            "wind_speed_10m_max": [12.0,14.0],
+            "wind_gusts_10m_max": [20.0,22.0],
+            "sunshine_duration": [36000.0,36000.0]
+          }
+        }
+        """
+        let days = try ForecastMapper.map(decode(payload), city: la, retrievedAt: retrievedAt).days
+
+        // Format day 0 in the city's own time zone; the calendar day must be preserved.
+        let cityFormatter = DateFormatter()
+        cityFormatter.locale = Locale(identifier: "en_US_POSIX")
+        cityFormatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
+        cityFormatter.dateFormat = "yyyy-MM-dd"
+
+        XCTAssertEqual(cityFormatter.string(from: days[0].date), "2026-06-13",
+                       "Date must remain the city's calendar day, not shift to the 12th")
+        XCTAssertEqual(cityFormatter.string(from: days[1].date), "2026-06-14")
     }
 
     func test_map_datesAreStrictlyIncreasingDailySteps() throws {
@@ -89,11 +129,9 @@ final class ForecastMapperTests: XCTestCase {
         XCTAssertEqual(day1.temperatureMin, 12.4, accuracy: 0.0001)
         XCTAssertEqual(day1.apparentTemperatureMax, 24.8, accuracy: 0.0001)
         XCTAssertEqual(day1.windGustsMax, 30.1, accuracy: 0.0001)
-        XCTAssertEqual(day1.uvIndexMax, 6.0, accuracy: 0.0001)
 
-        // Day 0: snowfall and uv null -> 0; the rest present.
+        // Day 0: snowfall null -> 0; the rest present.
         XCTAssertEqual(days[0].snowfallSum, 0, accuracy: 0.0001)
-        XCTAssertEqual(days[0].uvIndexMax, 0, accuracy: 0.0001)
         XCTAssertEqual(days[0].weatherCode, 3)
     }
 

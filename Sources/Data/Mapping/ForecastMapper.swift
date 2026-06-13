@@ -4,19 +4,21 @@ import Foundation
 /// `[DailyWeather]` and assembles a `WeatherForecast` for the resolved city.
 enum ForecastMapper {
 
-    /// Calendar-date parser for `daily.time`.
+    /// Builds a calendar-date parser for `daily.time` anchored to a city's time zone.
     ///
     /// `daily.time` strings are local calendar dates (the request uses `timezone=auto`),
-    /// so we parse them with a fixed `en_US_POSIX` locale and UTC time zone to get a
-    /// deterministic, locale-independent `Date` anchored at midnight UTC. This avoids
-    /// the host locale/zone shifting which calendar day a string resolves to.
-    private static let dateFormatter: DateFormatter = {
+    /// so we parse them with a fixed `en_US_POSIX` locale and the city's own time zone.
+    /// The resulting `Date` is the city's local calendar midnight, which keeps the
+    /// `DailyStrip`'s city-time-zone day formatting consistent (a western-hemisphere
+    /// city no longer shows the previous day). Falls back to UTC when the city has no
+    /// known time zone. One formatter is built per `map` call (once per fetch).
+    private static func dateParser(for city: City) -> DateFormatter {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(identifier: "UTC")
+        formatter.timeZone = TimeZone(identifier: city.timezone ?? "") ?? TimeZone(identifier: "UTC")!
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter
-    }()
+    }
 
     /// Zips the parallel daily arrays into `[DailyWeather]` and wraps them in a
     /// `WeatherForecast`.
@@ -45,17 +47,18 @@ enum ForecastMapper {
             daily.precipitationProbabilityMax.count == count,
             daily.windSpeedMax.count == count,
             daily.windGustsMax.count == count,
-            daily.sunshineDuration.count == count,
-            daily.uvIndexMax.count == count
+            daily.sunshineDuration.count == count
         else {
             throw AppError.decoding
         }
+
+        let dateParser = dateParser(for: city)
 
         var days: [DailyWeather] = []
         days.reserveCapacity(count)
 
         for index in 0..<count {
-            guard let date = dateFormatter.date(from: daily.time[index]) else {
+            guard let date = dateParser.date(from: daily.time[index]) else {
                 throw AppError.decoding
             }
             days.append(
@@ -70,8 +73,7 @@ enum ForecastMapper {
                     precipitationProbabilityMax: daily.precipitationProbabilityMax[index] ?? 0,
                     windSpeedMax: daily.windSpeedMax[index] ?? 0,
                     windGustsMax: daily.windGustsMax[index] ?? 0,
-                    sunshineDuration: daily.sunshineDuration[index] ?? 0,
-                    uvIndexMax: daily.uvIndexMax[index] ?? 0
+                    sunshineDuration: daily.sunshineDuration[index] ?? 0
                 )
             )
         }

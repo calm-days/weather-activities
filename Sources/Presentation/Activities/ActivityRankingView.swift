@@ -14,7 +14,9 @@ struct ActivityRankingView: View {
         content
             .navigationTitle(viewModel.city.name)
             .navigationBarTitleDisplayMode(.large)
-            .task { await viewModel.load() }
+            // Only auto-load when idle so re-appearing doesn't flash a reload over
+            // already-loaded content. Pull-to-refresh stays unconditional.
+            .task { if case .idle = viewModel.state { await viewModel.load() } }
             .refreshable { await viewModel.refresh() }
     }
 
@@ -43,8 +45,12 @@ struct ActivityRankingView: View {
                     }
 
                     ForEach(Array(ranking.scores.enumerated()), id: \.element.id) { index, score in
-                        ActivityCard(score: score, isTop: index == 0)
-                            .padding(.horizontal)
+                        ActivityCard(
+                            score: score,
+                            isTop: index == 0,
+                            bestDayLabel: bestDayLabel(for: score, in: ranking)
+                        )
+                        .padding(.horizontal)
                     }
 
                     if !ranking.forecast.days.isEmpty {
@@ -59,6 +65,18 @@ struct ActivityRankingView: View {
             }
             .background(Color(.systemGroupedBackground))
         }
+    }
+
+    /// Abbreviated weekday of an activity's best day, formatted in the city's time
+    /// zone (the same `WeekdayFormatter` the strip uses). Returns nil when the index
+    /// is absent or out of range so the card simply omits the caption.
+    private func bestDayLabel(for score: ActivityScore, in ranking: ActivityRanking) -> String? {
+        guard let index = score.bestDayIndex,
+              ranking.forecast.days.indices.contains(index) else { return nil }
+        return WeekdayFormatter.short(
+            ranking.forecast.days[index].date,
+            timeZoneIdentifier: ranking.city.timezone
+        )
     }
 }
 

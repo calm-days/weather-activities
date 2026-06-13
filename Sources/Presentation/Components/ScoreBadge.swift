@@ -1,10 +1,18 @@
 import SwiftUI
 
 /// A pill badge showing an activity's suitability percentage, tinted by tier:
-/// green (≥66), orange (≥40), else red. Colours are SwiftUI semantic system
-/// colours so they adapt to light/dark and respect accessibility settings.
+/// green (great), orange (fair), else red. The tier is derived from the raw
+/// `0...1` score via `ScoreTier` — the single source of truth shared with the
+/// rationale copy — so colour/label and copy always agree (a score of 0.655 is
+/// no longer green/"great" while the copy says "Fair"). Colours are SwiftUI
+/// semantic system colours so they adapt to light/dark and respect accessibility.
 struct ScoreBadge: View {
-    let percentage: Int
+    /// Raw suitability score in `0...1`. Tier is derived from this, not the
+    /// rounded percentage, so badge and rationale never disagree at a boundary.
+    let score: Double
+
+    /// Score as a 0–100 integer for display.
+    private var percentage: Int { Int((score * 100).rounded()) }
 
     var body: some View {
         Text("\(percentage)%")
@@ -13,37 +21,27 @@ struct ScoreBadge: View {
             .foregroundStyle(.white)
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
-            .background(tier.color, in: Capsule())
-            .accessibilityLabel("Suitability \(percentage) percent, \(tier.label)")
+            .background(ScoreBadge.color(for: tier), in: Capsule())
+            .accessibilityLabel("Suitability \(percentage) percent, \(ScoreBadge.label(for: tier))")
     }
 
-    private var tier: Tier { Tier(percentage: percentage) }
+    private var tier: ScoreTier { ScoreTier(score: score) }
 
-    enum Tier {
-        case high, medium, low
-
-        init(percentage: Int) {
-            switch percentage {
-            case 66...: self = .high
-            case 40...: self = .medium
-            default:    self = .low
-            }
+    /// Maps a `ScoreTier` to its badge/bar colour. Shared with `ScoreBar`.
+    static func color(for tier: ScoreTier) -> Color {
+        switch tier {
+        case .great: return .green
+        case .fair:  return .orange
+        case .poor:  return .red
         }
+    }
 
-        var color: Color {
-            switch self {
-            case .high:   return .green
-            case .medium: return .orange
-            case .low:    return .red
-            }
-        }
-
-        var label: String {
-            switch self {
-            case .high:   return "great"
-            case .medium: return "fair"
-            case .low:    return "poor"
-            }
+    /// Human-readable tier label used in the accessibility string.
+    static func label(for tier: ScoreTier) -> String {
+        switch tier {
+        case .great: return "great"
+        case .fair:  return "fair"
+        case .poor:  return "poor"
         }
     }
 }

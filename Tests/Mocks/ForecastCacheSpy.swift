@@ -8,6 +8,8 @@ import Foundation
 /// and matches the protocol's async surface without manual locking.
 actor ForecastCacheSpy: ForecastCache {
     private(set) var savedForecasts: [WeatherForecast] = []
+    /// Cities passed to `forecast(for:)`, in call order.
+    private(set) var readCities: [City] = []
     private var storage: [Int: WeatherForecast] = [:]
 
     init(seeded: [WeatherForecast] = []) {
@@ -22,9 +24,13 @@ actor ForecastCacheSpy: ForecastCache {
     }
 
     func forecast(for city: City) async -> WeatherForecast? {
-        storage[city.id]
+        readCities.append(city)
+        return storage[city.id]
     }
 
     /// Number of `save` calls observed.
     var saveCount: Int { savedForecasts.count }
+
+    /// Number of `forecast(for:)` (read) calls observed.
+    var readCount: Int { readCities.count }
 }
