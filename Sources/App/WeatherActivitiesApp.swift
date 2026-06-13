@@ -1,15 +1,20 @@
 import SwiftUI
 
-/// App entry point.
+/// App entry point and composition root holder.
 ///
-/// NOTE: This is a minimal placeholder created during scaffolding (P0). The real
-/// composition root (`AppContainer`) and root navigation are wired up in the
-/// Presentation phase (P3), which replaces the body below.
+/// Builds the single `AppContainer`, then mounts `CitySearchView` as the root. The
+/// container is handed to the root view so it can build the activity-ranking view
+/// model for the pushed `navigationDestination`.
 @main
 struct WeatherActivitiesApp: App {
+    @State private var container = AppContainer()
+
     var body: some Scene {
         WindowGroup {
-            Text("Weather Activities")
+            CitySearchView(
+                viewModel: container.makeCitySearchViewModel(),
+                container: container
+            )
         }
     }
 }
