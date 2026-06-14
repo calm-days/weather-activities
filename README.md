@@ -8,9 +8,6 @@ A native iOS app that lets you search for a city and see a **ranked list of acti
 |---|---|---|
 | ![Search](Screenshots/search.png) | ![Ranking light](Screenshots/ranking-light.png) | ![Ranking dark](Screenshots/ranking-dark.png) |
 
-> Built as a take-home for a Senior Mobile Engineer role. The emphasis is on
-> architecture, correctness, testing, and communication rather than visual volume.
-
 ---
 
 ## 1. Project overview *(deliverable a)*
@@ -225,7 +222,7 @@ fails fast (`AppError.decoding`) on a length mismatch or unparseable date.
 - **No UI / snapshot tests.** The brief de-prioritizes them and they add a dependency
   (`swift-snapshot-testing`) or flakiness; effort went into unit tests + a live integration
   smoke + manual simulator verification instead. The architecture is snapshot-ready.
-- **Heuristic scoring**, not calibrated — by design for a take-home; the curves are isolated
+- **Heuristic scoring**, not calibrated — a deliberate scope choice; the curves are isolated
   and trivial to retune.
 - **Length-mismatch is a hard failure.** If Open-Meteo ever returned a daily column shorter
   than `time`, the whole forecast is rejected rather than partially shown. The documented
