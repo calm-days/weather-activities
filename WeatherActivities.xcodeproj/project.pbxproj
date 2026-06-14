@@ -46,7 +46,6 @@
 		8DB56017B77AB4AE32F3488E /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7EFABE63FFD25D91E0A3572 /* Activity.swift */; };
 		92ECF04A688BBB2BD4EA5D0E /* HTTPClientStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C250233355129A1259D1D6D /* HTTPClientStub.swift */; };
 		999CAC4A25881B8391976B91 /* ForecastResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3FFA3034E12DB9708AC9FCA /* ForecastResponseDTO.swift */; };
-		A17A8911098F3101BE35DC66 /* PlaceholderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D8760C9E64A21F27110B60 /* PlaceholderTests.swift */; };
 		A3F300A9745C0F282D5A17AD /* City.swift in Sources */ = {isa = PBXBuildFile; fileRef = C146B2B3492600DE7DCA32D9 /* City.swift */; };
 		A4E2755578D0B71B3720C678 /* CitySearchViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 564DD5B0896BE88ADA64B392 /* CitySearchViewModelTests.swift */; };
 		A58B2925ACAE610BE020E354 /* ActivityCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E83F19707446425B946D4D3 /* ActivityCard.swift */; };
@@ -85,7 +84,6 @@
 		1C250233355129A1259D1D6D /* HTTPClientStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClientStub.swift; sourceTree = "<group>"; };
 		1EA378D470D7B3540C93EF58 /* WeatherActivities.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = WeatherActivities.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		26ECBC85E67F5CFE408F4E6E /* WeatherActivitiesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherActivitiesApp.swift; sourceTree = "<group>"; };
-		27D8760C9E64A21F27110B60 /* PlaceholderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTests.swift; sourceTree = "<group>"; };
 		29458279F9A248B46FB36DC0 /* URLSessionHTTPClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionHTTPClientTests.swift; sourceTree = "<group>"; };
 		2E7C348778DEA689312BC831 /* StateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateView.swift; sourceTree = "<group>"; };
 		2E83F19707446425B946D4D3 /* ActivityCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityCard.swift; sourceTree = "<group>"; };
@@ -300,7 +298,6 @@
 				C6028F4F40A38A05115C94EA /* Scoring */,
 				F40D0C0F86C7472F2B10FF14 /* Support */,
 				39495C8AB63D8E7C9357A950 /* ViewModels */,
-				27D8760C9E64A21F27110B60 /* PlaceholderTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -510,7 +507,6 @@
 				92ECF04A688BBB2BD4EA5D0E /* HTTPClientStub.swift in Sources */,
 				6C49288003AC3451B0C3E80E /* LiveForecastRepositoryTests.swift in Sources */,
 				3EA048C8693509D94418C92C /* LiveGeocodingRepositoryTests.swift in Sources */,
-				A17A8911098F3101BE35DC66 /* PlaceholderTests.swift in Sources */,
 				C0DA09FB804BEDF38803D235 /* ScoreTierTests.swift in Sources */,
 				2F8798C656E7D7F0FE8DAB29 /* ScoringCurvesTests.swift in Sources */,
 				7FC00778A5E3B7E7EC44A997 /* URLSessionHTTPClientTests.swift in Sources */,

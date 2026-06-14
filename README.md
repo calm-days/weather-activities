@@ -36,7 +36,7 @@ domain, data, and state so each piece can be verified on its own.
 | **Min iOS** | 17.0 (enables `@Observable`). Built against the iOS 26 SDK / Xcode 26. |
 | **Project generation** | [XcodeGen](https://github.com/yonyz/XcodeGen) — `project.yml` is the source of truth; the `.xcodeproj` is generated. (The generated project is also committed so it opens with no extra tooling.) |
 | **Dependencies** | **None.** Foundation + SwiftUI + XCTest only. Nothing to resolve, nothing to break. |
-| **Tests** | XCTest (96 tests). |
+| **Tests** | XCTest (95 tests). |
 
 ---
 
@@ -73,7 +73,7 @@ in `project.yml`); flip signing on to run on a device.
 xcodebuild -project WeatherActivities.xcodeproj -scheme WeatherActivities \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
 ```
-**96 unit tests, all passing.** The suite concentrates on "the most important logic and
+**95 unit tests, all passing.** The suite concentrates on "the most important logic and
 state handling," as the brief asks:
 
 - **Scoring** (`Tests/Scoring`) — the core. Scenario tables drive each activity (snowy/cold
@@ -283,7 +283,7 @@ programmer — scaffolding, drafting layer implementations and tests, and a mult
 review. Every line was reviewed and, more importantly, **verified**; the brief's standard is
 "AI usage is allowed, poor verification is not," so verification was treated as the deliverable:
 
-- **96 unit tests** pass (`xcodebuild test`), concentrated on the scoring, mapping, network,
+- **95 unit tests** pass (`xcodebuild test`), concentrated on the scoring, mapping, network,
   repository, and view-model logic.
 - **Live integration smoke** against the real Open-Meteo API confirmed end-to-end decoding +
   scoring and that rankings are **season-aware** (run mid-June): Biarritz → Surfing 90%;
